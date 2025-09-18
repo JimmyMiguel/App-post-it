@@ -1,12 +1,26 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
+    <link rel="stylesheet" href="./src/style.css" />
+    <title>Post-It</title>
   </head>
   <body>
+    <div class="post-it-card">
+      <h2 class="card-title">Books to read as Designer/</h2>
+      
+      <p class="card-description">
+        This is a longer description for the task to check how the text will be truncated with an ellipsis if it overflows the container. Let's add even more text to be sure it works as expected.
+      </p>
+      
+      <div class="card-footer">
+        <p class="card-date">Jan 21, 2024</p>
+        <button class="edit-button" aria-label="Editar nota"></button>
+      </div>
+    </div>
+
     <div id="app"></div>
     <!-- 
     https://www.behance.net/gallery/192244285/Notes-App?tracking_source=search_projects|sticky+notes+app&l=20
