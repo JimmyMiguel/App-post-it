@@ -7,13 +7,21 @@ export function crearNuevaNota():Element{
     boton.addEventListener("click", ()=>{
         state.setState([
         {
-          id: "32",
+          id: 32,
           title: "Mensaje para Marce",
           text: "Enviar un mensaje para Marce de felicitacion",
           completed: true,
           Date: new Date(),
           option: "amarillo",
         }])
+
+        
+        const lastState = state.getState()
+    
+      
+
+
+        
     
     })
     return boton

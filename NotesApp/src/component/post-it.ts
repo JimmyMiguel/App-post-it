@@ -1,21 +1,18 @@
-import { state } from "../state";
-import type { DataItem } from "../state";
-function postItCom(data: DataItem) {
-  class postIt extends HTMLElement {
-    shadow = this.attachShadow({ mode: "open" });
-    constructor() {
-      super();
-      this.render();
-    }
 
-    render() {
-      // post-it-card.js
+export class postIt extends HTMLElement {
+  constructor() {
+    super();
+    this.render();
+  }
 
-      const template = document.createElement("template");
-      template.innerHTML = `
+  render() {
+
+    const shadow = this.attachShadow({ mode: "open" });
+    
+    shadow.innerHTML = `
   <style>
     /* Estilos generales y de la tarjeta */
-    :host {
+    .card {
       display: flex;
       flex-direction: column;
       box-sizing: border-box;
@@ -85,32 +82,26 @@ function postItCom(data: DataItem) {
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
   </style>
-
+  <div class="card" > 
   <h2 class="card-title">
-    <slot name="title">Título por defecto</slot>
   </h2>
   
   <p class="card-description">
-    <slot name="description">Descripción por defecto...</slot>
+  
   </p>
   
   <div class="card-footer">
-    <p class="card-date">
-      <slot name="date">Fecha por defecto</slot>
-    </p>
-    <button class="edit-button" aria-label="Editar nota"></button>
+  <p class="card-date">
+  <slot name="date">Fecha por defecto</slot>
+  </p>
+  <button class="edit-button" aria-label="Editar nota"></button>
+  </div>
   </div>
 `;
-    }
+
   }
-  customElements.define("post-it-card", postIt);
-  const lastData = state.getState()
-  const ultimoObjeto =lastData.length -1
-  const idPostIt = ultimoObjeto.id +1
-
-
-
-
-
 
 }
+customElements.define("post-it-card", postIt);
+
+

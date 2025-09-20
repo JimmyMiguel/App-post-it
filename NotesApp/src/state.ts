@@ -10,8 +10,11 @@ export type DataItem = {
 }
 
 const state = {
+
   data: [] as DataItem[],  
+
   listener: [] as Function[],  
+  
   getState(): DataItem[] {
     return this.data;
   },
