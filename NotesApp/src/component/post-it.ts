@@ -1,15 +1,28 @@
-
+import   "./scene/welcomeScene";
 export class postIt extends HTMLElement {
+   shadow = this.attachShadow({ mode: "open" });
   constructor() {
     super();
-    this.render();
+   }
+
+  connectedCallback(){
+    this.render()
   }
 
-  render() {
 
-    const shadow = this.attachShadow({ mode: "open" });
-    
-    shadow.innerHTML = `
+  render() {
+    const title = this.getAttribute("title")
+    const text= this.getAttribute("text")
+    const fechaString = this.getAttribute("fecha")
+    const fecha = new Date(fechaString!)
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');   
+    const anio = fecha.getFullYear();
+    const fechaFormateada = `${dia}/${mes}/${anio}`
+
+
+
+    this.shadow.innerHTML = `
   <style>
     /* Estilos generales y de la tarjeta */
     .card {
@@ -27,11 +40,16 @@ export class postIt extends HTMLElement {
 
     /* Título */
     .card-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #101010;
-      margin: 0 0 8px 0;
-      line-height: 1.3;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #101010;
+        margin: 0 0 8px 0;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;  
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     /* Descripción con truncado de texto */
@@ -83,16 +101,13 @@ export class postIt extends HTMLElement {
     }
   </style>
   <div class="card" > 
-  <h2 class="card-title">
-  </h2>
+  <h2 class="card-title"> ${title}</h2>
   
-  <p class="card-description">
-  
-  </p>
+  <p class="card-description"> ${text} </p>
   
   <div class="card-footer">
   <p class="card-date">
-  <slot name="date">Fecha por defecto</slot>
+  <slot name="date">${fechaFormateada}</slot>
   </p>
   <button class="edit-button" aria-label="Editar nota"></button>
   </div>

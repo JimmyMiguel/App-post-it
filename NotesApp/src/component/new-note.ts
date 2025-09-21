@@ -1,30 +1,75 @@
-import { state } from "../state"
-export function crearNuevaNota():Element{
-    const boton = document.createElement("button")
-    boton.style.width ="100px"
-    boton.style.height="50px"
-    boton.textContent="Crear Nueva nota"
-    boton.addEventListener("click", ()=>{
-        state.setState([
-        {
-          id: 32,
-          title: "Mensaje para Marce",
-          text: "Enviar un mensaje para Marce de felicitacion",
-          completed: true,
-          Date: new Date(),
-          option: "amarillo",
-        }])
-
-        
-        const lastState = state.getState()
+ 
+  export class botonAddNote extends HTMLElement{
+    shadow = this.attachShadow({mode:"open"})
+    constructor(){
+      super()
+    }
+    connectedCallback (){
+      this.render()
+     const boton = this.shadow.querySelector(".boton")
+    boton!.addEventListener("click", ()=>{
+    console.log("si vale el boton");
     
-      
 
 
-        
-    
-    })
-    return boton
-}
+  })
+
+
+    }
+
+    render(){
+    this.shadow.innerHTML =  `
+    <style>
+        :host {
+          display: inline-block;
+        }
+        button {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 8px 16px;
+          border-radius: 99px;  
+          border: none;
+          background-color: #9b9b9b;  
+          color: white;
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          user-select: none;
+          transition: background-color 0.3s ease;
+        }
+        button:hover {
+          background-color: #b4b3b3ff;
+        }
+        .circle {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background-color: white;
+          color: black;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 1.5rem;
+          line-height: 1;
+          user-select: none;
+        }
+      </style>
+      <button class="boton">
+        <span class="circle">+</span>
+        New Note
+      </button>
+
+    `}
+  }
+  customElements.define("boton-add-notes",botonAddNote)
+ 
+
+
+
+
+
+
 
 
