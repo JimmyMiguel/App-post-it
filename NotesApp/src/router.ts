@@ -1,66 +1,92 @@
-import "./component/scene/welcomeScene";
+// router.ts
 
+import { welcomeScene } from "./component/scene/welcomeScene";
+import "./component/scene/editScene";
+import "./component/post-it";
+import "./component/scene/postScene";
 
-// Definimos tipos para la ruta
+// --- Tipos y Rutas (a nivel de módulo) ---
 type Route = {
-  path: RegExp;              // Expresión regular para comparar ruta
-  action: () => Element;     // Función que renderiza y retorna un nodo DOM
+  path: RegExp;
+  action: () => Element;
 };
 
-// Función initRouter que inicializa el router en un contenedor HTML
-export function initRouter(container: Element) {
+const routes: Route[] = [
+  {
+    path: /^\/$/,
+    action: () => welcomeScene(),
+  },
+  {
+    path: /^\/postScene$/,
+    action: () => {
+      const postSecen = document.createElement("post-scene")
+      return postSecen
+    }
+  },
+  {
+    path: /^\/editScene$/,
+    action: () => document.createElement("edit-scene"),
+  }
+];
 
-  // Array con las rutas y sus acciones
-  const routes: Route[] = [
-      {
-          path: /^\/$/, // ruta exacta "/"
-          action: () => {
-              const welcomeScene = document.createElement('scene-welcome');
-               return welcomeScene;
-          }
-      },
-      {
-          path: /^\/login$/, // ruta exacta "/login"
-          action: () => {
-              const div = document.createElement('div');
-              const h1 = document.createElement('h1');
-              h1.textContent = "Hola, soy la página de Login";
-              div.appendChild(h1);
-              return div;
-          }
-      }
-  ];
+// --- Variables Compartidas (a nivel de módulo) ---
+// 1. Creamos una variable 'container' que será accesible por todas las funciones en este archivo.
+let container: Element | null = null;
 
-  // Función para manejar el cambio de ruta
-  function handleRoute(path: string) {
-      // Busca la primera ruta que coincida con path
-      for (const route of routes) {
-          if (route.path.test(path)) {
-              // Limpia el contenedor
-              container.innerHTML = '';
-              // Ejecuta acción y agrega el resultado al contenedor
-              container.appendChild(route.action());
-              return;
-          }
-      }
-      // Si no coincide ninguna ruta, mostrar 404
-      container.innerHTML = '<h2>404 - Página no encontrada</h2>';
+
+// --- Funciones (a nivel de módulo) ---
+
+// 2. Movemos handleRoute aquí fuera. Ahora es visible para goTo y initRouter.
+function handleRoute(path: string) {
+  console.log("handleRoute called with path:", path);
+  console.log("Container:", container);
+
+  // Comprobamos si el contenedor ya ha sido inicializado.
+  if (!container) {
+    console.error("Container not initialized!");
+    return;
   }
 
-  // Función para cambiar ruta y actualizar historial
-  function goTo(path: string) {
-      history.pushState({}, '', path);
-      handleRoute(path);
-  }
+  for (const route of routes) {
+    console.log("Testing route:", route.path, "against path:", path);
+    if (route.path.test(path)) {
+      console.log("Route matched! Executing action...");
+      container.innerHTML = '';
+      const newElement = route.action();
+      container.appendChild(newElement);
+      console.log("Element added to container:", newElement);
 
-  // Escuchar evento popstate para manejar navegación con botones navegador
+      return;
+    }
+  }
+  console.log("No route matched, showing 404");
+  container.innerHTML = '<h2>404 - Página no encontrada</h2>';
+}
+
+/**
+ * Navega a una nueva ruta y actualiza el historial del navegador.
+ * Esta función se exporta para ser usada en cualquier componente.
+ * @param path La ruta a la que se quiere navegar (ej. "/postScene").
+ */
+export function goTo(path: string) {
+  console.log("goTo called with path:", path);
+  history.pushState({}, '', path);
+  // Ahora sí puede llamar a handleRoute porque están en el mismo "nivel".
+  handleRoute(path);
+}
+
+/**
+ * Inicializa el router. Se debe llamar una sola vez al arrancar la app.
+ * @param mainContainer El elemento del DOM donde se renderizarán las vistas.
+ */
+export function initRouter(mainContainer: Element) {
+  // 3. El trabajo de initRouter ahora es simple: configurar el 'container' y los listeners.
+  container = mainContainer;
+
   window.addEventListener('popstate', () => {
-      handleRoute(location.pathname);
+    handleRoute(location.pathname);
   });
 
-  // Inicializar mostrando la ruta actual
+  // Realiza el renderizado de la ruta inicial.
   handleRoute(location.pathname);
-
-  // Retornar la función goTo para usarla externamente
-  return { goTo };
 }

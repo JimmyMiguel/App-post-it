@@ -1,27 +1,30 @@
- 
-  export class botonAddNote extends HTMLElement{
-    shadow = this.attachShadow({mode:"open"})
-    constructor(){
-      super()
+export class botonAddNote extends HTMLElement {
+  shadow = this.attachShadow({ mode: "open" })
+  constructor() {
+    super()
+  }
+
+  navigateToEdit() {
+    console.log("navigateToEdit called!");
+    try {
+      console.log("Navegando a /editScene");
+      history.pushState({}, '', '/editScene');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      console.log("Navegación ejecutada correctamente");
+    } catch (error) {
+      console.error("Error en la navegación:", error);
     }
-    connectedCallback (){
-      this.render()
-     const boton = this.shadow.querySelector(".boton")
-    boton!.addEventListener("click", ()=>{
-    console.log("si vale el boton");
-    
+  }
+  connectedCallback() {
+    this.render()
+    console.log("Componente conectado");
+  }
 
-
-  })
-
-
-    }
-
-    render(){
-    this.shadow.innerHTML =  `
+  render() {
+    this.shadow.innerHTML = `
     <style>
         :host {
-          display: inline-block;
+          display: block;
         }
         button {
           display: flex;
@@ -56,15 +59,15 @@
           user-select: none;
         }
       </style>
-      <button class="boton">
+      <button class="boton" onclick="this.navigateToEdit()">
         <span class="circle">+</span>
         New Note
       </button>
 
     `}
-  }
-  customElements.define("boton-add-notes",botonAddNote)
- 
+}
+customElements.define("boton-add-notes", botonAddNote)
+
 
 
 

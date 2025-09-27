@@ -1,135 +1,131 @@
 import "../post-it"
 import { state } from "../../state"
 import "../new-note"
- export class welcomeScene extends HTMLElement{
-    shadow = this.attachShadow({mode:'open'}) //encapsulo el component
-    constructor(){
-        super()
+import { goTo } from "../../router"
+
+export function welcomeScene() {
+  const container = document.createElement('div')
+  container.innerHTML = `
+    <style>
+      :host {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #000;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        box-sizing: border-box;
+        position: relative;
         
-      }
-      //Cuando creo el customelement de  welcomeScene primero tengo que esperar que se
-      //suba al dom antes de renderizar el post It y para eso es esta funcion
-      //conectCallback
-      
-
-      
-      connectedCallback (){
-        this.render() //esperamos que se ejecute render y suba al dom
-        state.subscribe(()=>{
-          this.renderPostIt()//traemos los postit
-        })
+        /* Ocupa toda la altura y está centrado con un ancho máximo */
+        height: 100vh;
+        width: 360px;
+        max-width: 700px; 
+        margin: 0 auto; 
+        padding: 0;
       }
 
-     render(){
-        this.shadow.innerHTML= `
-  <style>
-    :host {
-      display: flex;
-      flex-direction: column;
-      align-items:center;
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      box-sizing: border-box;
-      position: relative;
+      header {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        padding: 1rem 1rem 0 1rem;
+      }
+
+      nav {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 0 1rem;
+      }
+
+      a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+      }
       
-      /* Ocupa toda la altura y está centrado con un ancho máximo */
-      height: 100vh;
-      width:360px;
-      max-width: 700px; 
-      margin: 0 auto; 
-      padding: 1rem;
-    }
+      a:hover, a:focus {
+        text-decoration: underline;
+      }
 
-    header {
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-bottom: 1rem;
-    }
+      .postits-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 2 columnas iguales */
+        gap: 1rem;
+        height: 80vh; /* 80% de la altura de la pantalla */
+        overflow-y: auto; /* Scroll vertical cuando sea necesario */
+        padding: 1rem;
+        padding-bottom: 5rem; /* Espacio extra para el botón flotante */
+        box-sizing: border-box;
+      }
 
-    nav {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
+      /* Estilos de la barra de scroll */
+      .postits-container::-webkit-scrollbar {
+        width: 6px;
+      }
 
-    a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: 600;
-      cursor: pointer;
-      user-select: none;
-    }
-    
-    a:hover, a:focus {
-      text-decoration: underline;
-    }
+      .postits-container::-webkit-scrollbar-thumb {
+        background-color: #555;
+        border-radius: 3px;
+      }
 
-    .postits-container {
-      flex: 1; /* Ocupa todo el espacio vertical disponible */
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      overflow-y: auto; /* Permite el scroll vertical */
-      padding-right: 0.5rem;
-      /* Espacio extra al final para que la última nota no quede oculta por el botón */
-      padding-bottom: 5rem; 
-    }
+      /* Estilos para posicionar el botón flotante */
+      .botonNuevaNota {
+        position: fixed;
+        bottom: 2rem;
+        right: 50%;
+        transform: translateX(50%);
+        z-index: 100;
+      }
+    </style>
 
-    /* Estilos de la barra de scroll */
-    .postits-container::-webkit-scrollbar {
-      width: 6px;
-    }
+    <header>Stiky notes</header>
+    <nav>
+      <a href="#" id="all">All</a>
+      <a href="#" id="starred">Starred</a>
+    </nav>
+    <div class="postits-container"></div>
+    <boton-add-notes class="botonNuevaNota"></boton-add-notes>
+  `
 
-    .postits-container::-webkit-scrollbar-thumb {
-      background-color: #555;
-      border-radius: 3px;
-    }
+  // Función para renderizar los post-its
+  function renderPostIt() {
+    const lastState = state.getState()
+    console.log(lastState);
 
-    /* Estilos para posicionar el botón flotante */
-    .botonNuevaNota {
-      position: absolute;
-      bottom: 2rem;
-      right: 2rem;
-      z-index: 100;
+    const div = container.querySelector(".postits-container")
+    div!.innerHTML = ""
+    if (!Array.isArray(lastState)) {
+      console.error("El estado no es un array:", lastState);
+      return;
     }
-  </style>
+    for (const element of lastState) {
+      const instanciaCustomPostIt = document.createElement("post-it-card")
+      instanciaCustomPostIt.setAttribute("title", element.title)
+      instanciaCustomPostIt.setAttribute("text", element.text)
+      instanciaCustomPostIt.setAttribute('fecha', element.Date.toISOString())
+      div?.appendChild(instanciaCustomPostIt)
+    }
+  }
 
-  <header>Stiky notes</header>
-  <nav>
-    <a href="#" id="all">All</a>
-    <a href="#" id="starred">Starred</a>
-  </nav>
-  <div class="postits-container">
-    </div>
-  <boton-add-notes class="botonNuevaNota"></boton-add-notes>
-        ` 
-        
+  // Configurar eventos
+  const boton = container.querySelector(".botonNuevaNota")
+  boton?.addEventListener("click", () => {
+    goTo("/postScene")
+  })
 
-    }
-    
-    renderPostIt(){
-        const lastState = state.getState()
-        const div = this.shadow.querySelector(".postits-container")
-        div!.innerHTML= ""
-        if (!Array.isArray(lastState)) {
-        console.error("El estado no es un array:", lastState);
-        return;
-    }
-        for (const element of lastState) {
-          const instanciaCustomPostIt = document.createElement("post-it-card")
-          instanciaCustomPostIt.setAttribute("title",element.title) //despues lo consumo
-          instanciaCustomPostIt.setAttribute("text",element.text)
-          instanciaCustomPostIt.setAttribute('fecha', element.Date.toISOString() ) 
-          //con getAtribute en mi post-Its
-          div?.appendChild(instanciaCustomPostIt)
-        }
+  // Suscribirse al state para actualizar cuando cambie
+  state.subscribe(() => {
+    renderPostIt()
+  })
 
-    }
-    
-     
-    
+  // Renderizar los post-its existentes inmediatamente
+  setTimeout(() => {
+    renderPostIt()
+  }, 0)
+
+  return container
 }
-
-customElements.define("scene-welcome", welcomeScene)
-  
