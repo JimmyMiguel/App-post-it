@@ -1,4 +1,5 @@
 import   "./scene/welcomeScene";
+ import { state } from "../state";
 export class postIt extends HTMLElement {
    shadow = this.attachShadow({ mode: "open" });
   constructor() {
@@ -7,36 +8,51 @@ export class postIt extends HTMLElement {
 
   connectedCallback(){
     this.render()
-  }
+   }
 
 
-  render() {
-    const title = this.getAttribute("title")
-    const text= this.getAttribute("text")
-    const fechaString = this.getAttribute("fecha")
-    const fecha = new Date(fechaString!)
+render() {
+    const title = this.getAttribute("title");
+    const text = this.getAttribute("text");
+    const textArray = text?.split(",");
+    const idString = this.getAttribute("idUnico")
+    const idNumber = Number(idString)
+     
+    
+    
+    // 1. Generar los elementos de la lista (<li>) con checkboxes
+    const listItems = textArray?.map(item => `
+        <li>
+            <input type="checkbox">
+            <span>${item.trim()}</span>
+        </li>
+    `).join('') || ''; // .join('') convierte el array en un solo string
+
+    const fechaString = this.getAttribute("fecha");
+    
+    const fecha = new Date(fechaString!);
     const dia = String(fecha.getDate()).padStart(2, '0');
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');   
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
     const anio = fecha.getFullYear();
-    const fechaFormateada = `${dia}/${mes}/${anio}`
-
-
+    const fechaFormateada = `${dia}/${mes}/${anio}`;
 
     this.shadow.innerHTML = `
   <style>
     /* Estilos generales y de la tarjeta */
-    .card {
+        .card {
       display: flex;
       flex-direction: column;
       box-sizing: border-box;
       width: 170px;
-      height: 170px;
+      min-height: 170px; /* Altura base */
+      max-height: 350px; /* Altura máxima antes de hacer scroll */
       padding: 16px;
       background-color: #F7F056;
       border-radius: 24px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       font-family: 'Open Sans', sans-serif;
     }
+
 
     /* Título */
     .card-title {
@@ -52,17 +68,25 @@ export class postIt extends HTMLElement {
         text-overflow: ellipsis;
     }
 
-    /* Descripción con truncado de texto */
-    .card-description {
-      font-size: 0.875rem;
-      color: #333;
-      line-height: 1.4;
-      margin: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 3; /* Número de líneas a mostrar */
-      -webkit-box-orient: vertical;
+    /* Estilos para la lista de tareas */
+      .card-description {
+        font-size: 0.875rem;
+        color: #333;
+        margin: 0;
+        padding-left: 0; 
+        list-style-type: none; 
+        overflow-y: auto; /* CAMBIO AQUÍ: de 'hidden' a 'auto' */
+        flex-grow: 1; 
+      }
+    
+    .card-description li {
+      display: flex;
+      align-items: center;
+      white-space: nowrap; /* Evitar que el texto de un ítem salte de línea */
+     }
+    
+    .card-description input[type="checkbox"] {
+      margin-right: 6px; /* Espacio entre el checkbox y el texto */
     }
 
     /* Pie de página de la tarjeta */
@@ -82,41 +106,46 @@ export class postIt extends HTMLElement {
     }
 
     /* Botón de edición */
-    .edit-button {
-      width: 32px;
-      height: 32px;
-      border: none;
-      border-radius: 50%;
-      background-color: #101010;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23FFFFFF' class='bi bi-pencil-fill' viewBox='0 0 16 16'%3E%3Cpath d='M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: center;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+.borrarComp {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background-color: #101010;
+  background-image: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20x%3D%220px%22%20y%3D%220px%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%2C0%2C256%2C256%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-rule%3D%22nonzero%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%20stroke-linecap%3D%22butt%22%20stroke-linejoin%3D%22miter%22%20stroke-miterlimit%3D%2210%22%20stroke-dasharray%3D%22%22%20stroke-dashoffset%3D%220%22%20font-family%3D%22none%22%20font-weight%3D%22none%22%20font-size%3D%22none%22%20text-anchor%3D%22none%22%20style%3D%22mix-blend-mode%3A%20normal%22%3E%3Cg%20transform%3D%22scale(10.66667%2C10.66667)%22%3E%3Cpath%20d%3D%22M10%2C2l-1%2C1h-4c-0.6%2C0%20-1%2C0.4%20-1%2C1c0%2C0.6%200.4%2C1%201%2C1h2h10h2c0.6%2C0%201%2C-0.4%201%2C-1c0%2C-0.6%20-0.4%2C-1%20-1%2C-1h-4l-1%2C-1zM5%2C7v13c0%2C1.1%200.9%2C2%202%2C2h10c1.1%2C0%202%2C-0.9%202%2C-2v-13zM9%2C9c0.6%2C0%201%2C0.4%201%2C1v9c0%2C0.6%20-0.4%2C1%20-1%2C1c-0.6%2C0%20-1%2C-0.4%20-1%2C-1v-9c0%2C-0.6%200.4%2C-1%201%2C-1zM15%2C9c0.6%2C0%201%2C0.4%201%2C1v9c0%2C0.6%20-0.4%2C1%20-1%2C1c-0.6%2C0%20-1%2C-0.4%20-1%2C-1v-9c0%2C-0.6%200.4%2C-1%201%2C-1z%22%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-    .edit-button:hover {
+
+    .borrarComp:hover {
       transform: scale(1.1);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
   </style>
   <div class="card" > 
-  <h2 class="card-title"> ${title}</h2>
-  
-  <p class="card-description"> ${text} </p>
-  
-  <div class="card-footer">
-  <p class="card-date">
-  <slot name="date">${fechaFormateada}</slot>
-  </p>
-  <button class="edit-button" aria-label="Editar nota"></button>
-  </div>
+    <h2 class="card-title">${title}</h2>
+    
+    <ol class="card-description">${listItems}</ol>
+    
+    <div class="card-footer">
+      <p class="card-date">
+        <slot name="date">${fechaFormateada}</slot>
+      </p>
+      <button class="borrarComp" aria-label="Editar nota"></button>
+    </div>
   </div>
 `;
 
-  }
-
+    const boton = this.shadow.querySelector(".borrarComp")
+    boton?.addEventListener("click",()=>{
+      const lastState = state.getState()
+      const nuevaLista = lastState.filter(item => item.id !== idNumber )
+      state.setState(nuevaLista)
+    })
+      
+}
 }
 customElements.define("post-it-card", postIt);
-
-

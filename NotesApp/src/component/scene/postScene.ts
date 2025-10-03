@@ -184,8 +184,8 @@ export class PostScene extends HTMLElement {
       const newItem: DataItem = {
         id: Math.floor(Math.random() * 1000000), // ID único basado en numero aleatorio entero
         title: title.value, // String del título
-        text: allTasks.join(', '), // Unir todas las tareas en un string
-        Date: new Date()
+        text: allTasks, // Unir todas las tareas en un string
+        date: new Date()
       };
 
       // Actualizar el state
@@ -198,6 +198,8 @@ export class PostScene extends HTMLElement {
       //vamos a la escena de home
       goTo("/");
     });
+    console.log(this.datosTarea);
+    
 
   }
 }

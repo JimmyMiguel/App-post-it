@@ -1,8 +1,7 @@
 // router.ts
 
 import { welcomeScene } from "./component/scene/welcomeScene";
-import "./component/scene/editScene";
-import "./component/post-it";
+ import "./component/post-it";
 import "./component/scene/postScene";
 
 // --- Tipos y Rutas (a nivel de módulo) ---
@@ -38,8 +37,7 @@ let container: Element | null = null;
 
 // 2. Movemos handleRoute aquí fuera. Ahora es visible para goTo y initRouter.
 function handleRoute(path: string) {
-  console.log("handleRoute called with path:", path);
-  console.log("Container:", container);
+
 
   // Comprobamos si el contenedor ya ha sido inicializado.
   if (!container) {
@@ -48,14 +46,10 @@ function handleRoute(path: string) {
   }
 
   for (const route of routes) {
-    console.log("Testing route:", route.path, "against path:", path);
-    if (route.path.test(path)) {
-      console.log("Route matched! Executing action...");
-      container.innerHTML = '';
+     if (route.path.test(path)) {
+       container.innerHTML = '';
       const newElement = route.action();
       container.appendChild(newElement);
-      console.log("Element added to container:", newElement);
-
       return;
     }
   }
@@ -69,8 +63,7 @@ function handleRoute(path: string) {
  * @param path La ruta a la que se quiere navegar (ej. "/postScene").
  */
 export function goTo(path: string) {
-  console.log("goTo called with path:", path);
-  history.pushState({}, '', path);
+   history.pushState({}, '', path);
   // Ahora sí puede llamar a handleRoute porque están en el mismo "nivel".
   handleRoute(path);
 }

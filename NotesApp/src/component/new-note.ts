@@ -1,23 +1,12 @@
-export class botonAddNote extends HTMLElement {
+ export class botonAddNote extends HTMLElement {
   shadow = this.attachShadow({ mode: "open" })
   constructor() {
     super()
   }
 
-  navigateToEdit() {
-    console.log("navigateToEdit called!");
-    try {
-      console.log("Navegando a /editScene");
-      history.pushState({}, '', '/editScene');
-      window.dispatchEvent(new PopStateEvent('popstate'));
-      console.log("Navegación ejecutada correctamente");
-    } catch (error) {
-      console.error("Error en la navegación:", error);
-    }
-  }
+ 
   connectedCallback() {
     this.render()
-    console.log("Componente conectado");
   }
 
   render() {
@@ -59,12 +48,14 @@ export class botonAddNote extends HTMLElement {
           user-select: none;
         }
       </style>
-      <button class="boton" onclick="this.navigateToEdit()">
+      <button class="boton">
         <span class="circle">+</span>
-        New Note
+        Nueva Tarea
       </button>
 
-    `}
+    `
+  }
+
 }
 customElements.define("boton-add-notes", botonAddNote)
 
