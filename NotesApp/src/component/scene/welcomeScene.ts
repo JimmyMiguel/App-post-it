@@ -1,7 +1,7 @@
 import "../post-it"
 import { state } from "../../state"
 import "../new-note"
-import { goTo } from "../../router"
+ import { goTo } from "../../router"
 
 export function welcomeScene() {
   const container = document.createElement('div')
@@ -82,36 +82,39 @@ export function welcomeScene() {
       }
     </style>
 
-    <header>Stiky notes</header>
-    <nav>
-      <a href="#" id="all">All</a>
-      <a href="#" id="starred">Starred</a>
-    </nav>
+    <header>Tarea </header>
+
     <div class="postits-container"></div>
     <boton-add-notes class="botonNuevaNota"></boton-add-notes>
   `
 
   // Función para renderizar los post-its
   function renderPostIt() {
-    const lastState = state.getState()
+    const lastState = state.getState() //ultimo estado de la data
     console.log(lastState);
 
-    const div = container.querySelector(".postits-container")
-    div!.innerHTML = ""
+    const div = container.querySelector(".postits-container") //aqui coloco los postit
+    div!.innerHTML = "" // vacio la caja 
+
+
     if (!Array.isArray(lastState)) {
       console.error("El estado no es un array:", lastState);
       return;
     }
+
+
     for (const element of lastState) {
       const instanciaCustomPostIt = document.createElement("post-it-card")
       instanciaCustomPostIt.setAttribute("title", element.title)
-      instanciaCustomPostIt.setAttribute("text", element.text)
-      instanciaCustomPostIt.setAttribute('fecha', element.Date.toISOString())
+      instanciaCustomPostIt.setAttribute("text", element.text.join(","))
+      const fecha = new Date(element.date)
+     instanciaCustomPostIt.setAttribute('fecha', fecha.toDateString());
+      instanciaCustomPostIt.setAttribute("idUnico",element.id.toString())
       div?.appendChild(instanciaCustomPostIt)
     }
   }
 
-  // Configurar eventos
+  // Boton para agregar tareas
   const boton = container.querySelector(".botonNuevaNota")
   boton?.addEventListener("click", () => {
     goTo("/postScene")
